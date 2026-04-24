@@ -36,6 +36,9 @@ const gpadApi: DesktopApi = {
 	async saveAppSettings(settings) {
 		return ipcRenderer.invoke(IPC_CHANNELS.settings.save, settings);
 	},
+	async openLogFolder(logPath) {
+		return ipcRenderer.invoke(IPC_CHANNELS.settings.openLogFolder, logPath);
+	},
 	async startManagedProcess(key) {
 		return ipcRenderer.invoke(IPC_CHANNELS.process.start, key);
 	},

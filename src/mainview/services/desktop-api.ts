@@ -74,6 +74,11 @@ export const desktopApi = {
 		return getDesktopApi().saveAppSettings(settings);
 	},
 
+	/** 打开日志所在目录。 */
+	async openLogFolder(logPath: string): Promise<OperationResult> {
+		return getDesktopApi().openLogFolder(logPath);
+	},
+
 	/** 启动受管进程。 */
 	async startManagedProcess(key: ManagedProcessKey): Promise<OperationResult> {
 		return getDesktopApi().startManagedProcess(key);

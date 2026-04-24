@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Sparkles } from "lucide-react";
+import { FolderOpen, Sparkles } from "lucide-react";
 import { SectionTitle, SelectBox, SoftButton, SoftPanel, TextInput } from "../components/ui";
+import { desktopApi } from "../services/desktop-api";
 import { useSettingsStore } from "../store/settings-store";
 import type { AppLocale, AppSettings, LogLevel, ThemeAccent } from "../../shared/types";
 
@@ -122,19 +123,34 @@ export function SettingPage() {
 
 				<label className="flex flex-col gap-2">
 					<span className="text-sm font-medium text-slate-600">日志路径</span>
-					<TextInput
-						value={draft.logPath}
-						onChange={(event) => {
-							setDraft((current) =>
-								current
-									? {
-											...current,
-											logPath: event.target.value,
-										}
-									: current,
-							);
-						}}
-					/>
+					<div className="flex items-center gap-2">
+						<TextInput
+							className="flex-1"
+							value={draft.logPath}
+							onChange={(event) => {
+								setDraft((current) =>
+									current
+										? {
+												...current,
+												logPath: event.target.value,
+											}
+										: current,
+								);
+							}}
+						/>
+						<SoftButton
+							className="h-10 shrink-0 px-3 text-slate-600"
+							onClick={() => {
+								void (async () => {
+									const result = await desktopApi.openLogFolder(draft.logPath);
+									setMessage(result.message);
+								})();
+							}}
+						>
+							<FolderOpen className="h-4 w-4" />
+							打开
+						</SoftButton>
+					</div>
 				</label>
 
 				<label className="flex flex-col gap-2">

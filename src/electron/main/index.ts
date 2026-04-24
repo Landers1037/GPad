@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, shell } from "electron";
 import path from "node:path";
 import { APP_NAME } from "../../shared/app-meta";
 import { IPC_CHANNELS } from "../../shared/ipc";
@@ -30,7 +30,7 @@ const logger = new LoggerService({
 /** 构建首页总览快照。 */
 async function buildDashboardSnapshot(): Promise<DashboardSnapshot> {
 	return {
-		...systemInfoService.buildBaseSnapshot(),
+		...(await systemInfoService.buildBaseSnapshot(configService)),
 		processes: await processManager.getStatuses(),
 	};
 }
@@ -147,6 +147,35 @@ function registerIpcHandlers() {
 				return buildSuccess("应用设置已保存。");
 			} catch (error) {
 				return failWithLog("应用设置保存失败。", error);
+			}
+		},
+	);
+
+	ipcMain.removeHandler(IPC_CHANNELS.settings.openLogFolder);
+	ipcMain.handle(
+		IPC_CHANNELS.settings.openLogFolder,
+		async (_event, logPath: string) => {
+			try {
+				const resolvedLogPath =
+					typeof logPath === "string" && path.isAbsolute(logPath)
+						? logPath
+						: defaultLogPath;
+				const folderPath = path.dirname(resolvedLogPath);
+				const openError = await shell.openPath(folderPath);
+				if (openError) {
+					await logger.warn("打开日志目录失败。", {
+						folderPath,
+						openError,
+					});
+					return {
+						success: false,
+						message: `打开日志目录失败：${openError}`,
+					};
+				}
+				await logger.info("日志目录已打开。", { folderPath });
+				return buildSuccess("日志目录已打开。");
+			} catch (error) {
+				return failWithLog("打开日志目录失败。", error);
 			}
 		},
 	);

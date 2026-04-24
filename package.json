@@ -6,7 +6,8 @@
 	"scripts": {
 		"dev": "electron-vite dev",
 		"build": "electron-vite build",
-		"dist": "npm run build && electron-builder"
+		"build:icon": "node scripts/generate-icon.mjs",
+		"dist": "npm run build:icon && npm run build && electron-builder"
 	},
 	"dependencies": {
 		"lucide-react": "^0.469.0",
@@ -23,6 +24,7 @@
 		"electron": "latest",
 		"electron-builder": "latest",
 		"electron-vite": "latest",
+		"png-to-ico": "^3.0.1",
 		"postcss": "^8.4.49",
 		"tailwindcss": "^3.4.16",
 		"typescript": "^5.7.2",
@@ -48,9 +50,14 @@
 			}
 		],
 		"win": {
+			"icon": "build/gpad-logo.ico",
 			"target": [
 				"nsis"
 			]
+		},
+		"nsis": {
+			"installerIcon": "build/gpad-logo.ico",
+			"uninstallerIcon": "build/gpad-logo.ico"
 		}
 	}
 }

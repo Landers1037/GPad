@@ -9,6 +9,7 @@ import {
 	Info,
 	X,
 } from "lucide-react";
+import gpadLogo from "../../gpad-logo.png";
 import { APP_NAME, APP_VERSION } from "../theme/version";
 import { desktopApi } from "../services/desktop-api";
 import { useSettingsStore } from "../store/settings-store";
@@ -105,8 +106,13 @@ export function AppLayout() {
 						<p className="text-sm uppercase tracking-[0.32em] text-slate-400">
 							Desktop Control Center
 						</p>
-						<h1 className="mt-2 text-3xl font-semibold text-slate-700">
+						<h1 className="mt-2 inline-flex items-center gap-3 text-3xl font-semibold text-slate-700">
 							{APP_NAME}
+							<img
+								src={gpadLogo}
+								alt={`${APP_NAME} logo`}
+								className="h-10 w-10 rounded-2xl object-cover shadow-soft"
+							/>
 						</h1>
 					</div>
 					<nav className="no-drag flex flex-wrap gap-3">
@@ -131,7 +137,6 @@ export function AppLayout() {
 						))}
 					</nav>
 					<div className="text-right text-sm text-slate-400">
-						<p>Neumorphism Console</p>
 						<p className="mt-1">{APP_VERSION}</p>
 					</div>
 				</header>
