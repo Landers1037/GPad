@@ -1,0 +1,6 @@
+node_modules
+exe
+dist
+out
+release
+.trae/

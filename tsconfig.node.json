@@ -1,0 +1,13 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"lib": ["ES2020"],
+		"types": ["node"],
+		"moduleResolution": "bundler"
+	},
+	"include": [
+		"electron.vite.config.ts",
+		"src/electron/**/*.ts",
+		"src/shared/**/*.ts"
+	]
+}
