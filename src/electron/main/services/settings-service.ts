@@ -2,21 +2,21 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { AppSettings } from "../../../shared/types";
 
-const DEFAULT_SETTINGS: AppSettings = {
-	locale: "zh-CN",
-	themeAccent: "sky",
-	animationEnabled: false,
-	logPath: "logs/gpad.log",
-	logLevel: "INFO",
-};
-
 /** 管理 GPad 本地设置。 */
 export class SettingsService {
 	private readonly settingsFilePath: string;
+	private readonly defaultSettings: AppSettings;
 
 	/** 创建设置服务。 */
-	constructor(userDataRoot: string) {
+	constructor(userDataRoot: string, defaultLogPath: string) {
 		this.settingsFilePath = path.join(userDataRoot, "gpad-settings.json");
+		this.defaultSettings = {
+			locale: "zh-CN",
+			themeAccent: "sky",
+			animationEnabled: false,
+			logPath: defaultLogPath,
+			logLevel: "INFO",
+		};
 	}
 
 	/** 获取应用设置。 */
@@ -24,9 +24,14 @@ export class SettingsService {
 		try {
 			const rawText = await readFile(this.settingsFilePath, "utf-8");
 			const parsed = JSON.parse(rawText) as Partial<AppSettings>;
+			const safeLogPath =
+				typeof parsed.logPath === "string" && path.isAbsolute(parsed.logPath)
+					? parsed.logPath
+					: this.defaultSettings.logPath;
 			return {
-				...DEFAULT_SETTINGS,
+				...this.defaultSettings,
 				...parsed,
+				logPath: safeLogPath,
 			};
 		} catch (error) {
 			if (
@@ -36,7 +41,7 @@ export class SettingsService {
 				throw new Error(`读取设置失败：${error.message}`);
 			}
 
-			return { ...DEFAULT_SETTINGS };
+			return { ...this.defaultSettings };
 		}
 	}
 

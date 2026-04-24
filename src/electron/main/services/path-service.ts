@@ -40,4 +40,9 @@ export class PathService {
 	getUserDataRoot(): string {
 		return this.electronApp.getPath("userData");
 	}
+
+	/** 获取系统 AppData 目录。 */
+	getAppDataRoot(): string {
+		return this.electronApp.getPath("appData");
+	}
 }

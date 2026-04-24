@@ -157,7 +157,7 @@ export interface AppSettings {
 	themeAccent: ThemeAccent;
 	/** 是否开启界面动画效果。 */
 	animationEnabled: boolean;
-	/** 日志目录。 */
+	/** 日志文件路径（默认 `%APPDATA%/GPad/logs/gpad.log`）。 */
 	logPath: string;
 	/** 日志级别。 */
 	logLevel: LogLevel;

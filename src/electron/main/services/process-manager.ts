@@ -130,7 +130,11 @@ export class ProcessManager {
 			return;
 		}
 
-		await this.runCommand("taskkill", ["/PID", String(current.pid), "/T"]);
+		try {
+			await this.runCommand("taskkill", ["/PID", String(current.pid), "/T"]);
+		} catch {
+			// 优雅停止失败时继续回退到强制终止，避免因为 /F 要求导致流程中断。
+		}
 		await this.delay(STOP_TIMEOUT_MS);
 
 		if (await this.isPidRunning(current.pid)) {
