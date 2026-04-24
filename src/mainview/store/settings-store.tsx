@@ -23,6 +23,13 @@ function applyThemeAccent(themeAccent: ThemeAccent) {
 	document.documentElement.dataset.themeAccent = themeAccent;
 }
 
+/** 应用动画开关到文档根节点。 */
+function applyAnimationEnabled(animationEnabled: boolean) {
+	document.documentElement.dataset.motionEnabled = animationEnabled
+		? "true"
+		: "false";
+}
+
 /** 提供应用设置上下文。 */
 export function SettingsStoreProvider({
 	children,
@@ -39,6 +46,7 @@ export function SettingsStoreProvider({
 				const nextSettings = await desktopApi.getAppSettings();
 				setSettings(nextSettings);
 				applyThemeAccent(nextSettings.themeAccent);
+				applyAnimationEnabled(nextSettings.animationEnabled);
 			} finally {
 				setLoading(false);
 			}
@@ -49,6 +57,7 @@ export function SettingsStoreProvider({
 		await desktopApi.saveAppSettings(nextSettings);
 		setSettings(nextSettings);
 		applyThemeAccent(nextSettings.themeAccent);
+		applyAnimationEnabled(nextSettings.animationEnabled);
 	}, []);
 
 	const value = useMemo<SettingsStoreContextValue>(

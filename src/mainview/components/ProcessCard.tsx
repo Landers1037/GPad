@@ -1,3 +1,4 @@
+import { Play, Square } from "lucide-react";
 import type { ManagedProcessStatus } from "../../shared/types";
 import { MetricItem, SoftButton, SoftPanel, StatusBadge } from "./ui";
 
@@ -40,6 +41,7 @@ export function ProcessCard({
 					disabled={!process.allowControl || process.isRunning}
 					onClick={onStart}
 				>
+					<Play className="h-4 w-4" />
 					启动程序
 				</SoftButton>
 				<SoftButton
@@ -47,6 +49,7 @@ export function ProcessCard({
 					disabled={!process.allowControl || !process.isRunning}
 					onClick={onStop}
 				>
+					<Square className="h-4 w-4" />
 					停止程序
 				</SoftButton>
 			</div>

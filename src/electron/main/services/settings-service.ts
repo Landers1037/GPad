@@ -5,6 +5,7 @@ import type { AppSettings } from "../../../shared/types";
 const DEFAULT_SETTINGS: AppSettings = {
 	locale: "zh-CN",
 	themeAccent: "sky",
+	animationEnabled: false,
 	logPath: "logs/gpad.log",
 	logLevel: "INFO",
 };

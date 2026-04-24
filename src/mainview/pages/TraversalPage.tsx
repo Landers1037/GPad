@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Play, Square } from "lucide-react";
 import { ConfigEditor, type ConfigField } from "../components/ConfigEditor";
 import { SectionTitle, SoftPanel } from "../components/ui";
 import { desktopApi } from "../services/desktop-api";
@@ -96,6 +97,7 @@ export function TraversalPage() {
 								void startProcess("traversalClient");
 							}}
 						>
+							<Play className="h-4 w-4" />
 							启动程序
 						</button>
 						<button
@@ -105,6 +107,7 @@ export function TraversalPage() {
 								void stopProcess("traversalClient");
 							}}
 						>
+							<Square className="h-4 w-4" />
 							停止程序
 						</button>
 					</div>

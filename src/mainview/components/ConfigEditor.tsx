@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Save } from "lucide-react";
 import { SelectBox, SoftButton, SoftPanel, TextArea, TextInput } from "./ui";
 
 /** 基础表单项定义。 */
@@ -143,6 +144,7 @@ export function ConfigEditor({
 						void handleSave();
 					}}
 				>
+					<Save className="h-4 w-4" />
 					{saving ? "保存中..." : "保存配置"}
 				</SoftButton>
 			</div>

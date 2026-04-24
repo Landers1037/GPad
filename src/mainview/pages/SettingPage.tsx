@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Sparkles } from "lucide-react";
 import { SectionTitle, SelectBox, SoftButton, SoftPanel, TextInput } from "../components/ui";
 import { useSettingsStore } from "../store/settings-store";
 import type { AppLocale, AppSettings, LogLevel, ThemeAccent } from "../../shared/types";
@@ -100,6 +101,26 @@ export function SettingPage() {
 				</label>
 
 				<label className="flex flex-col gap-2">
+					<span className="text-sm font-medium text-slate-600">开启动画效果</span>
+					<SelectBox
+						value={draft.animationEnabled ? "true" : "false"}
+						onChange={(event) => {
+							setDraft((current) =>
+								current
+									? {
+											...current,
+											animationEnabled: event.target.value === "true",
+										}
+									: current,
+							);
+						}}
+					>
+						<option value="false">关闭</option>
+						<option value="true">开启</option>
+					</SelectBox>
+				</label>
+
+				<label className="flex flex-col gap-2">
 					<span className="text-sm font-medium text-slate-600">日志路径</span>
 					<TextInput
 						value={draft.logPath}
@@ -150,6 +171,7 @@ export function SettingPage() {
 						})();
 					}}
 				>
+					<Sparkles className="h-4 w-4" />
 					保存设置
 				</SoftButton>
 			</div>

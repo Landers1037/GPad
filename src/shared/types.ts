@@ -155,6 +155,8 @@ export interface AppSettings {
 	locale: AppLocale;
 	/** 当前主题配色。 */
 	themeAccent: ThemeAccent;
+	/** 是否开启界面动画效果。 */
+	animationEnabled: boolean;
 	/** 日志目录。 */
 	logPath: string;
 	/** 日志级别。 */

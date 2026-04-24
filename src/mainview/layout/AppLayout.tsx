@@ -1,23 +1,33 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ComponentType } from "react";
 import { NavLink, Outlet } from "react-router-dom";
+import {
+	House,
+	Minus,
+	Expand,
+	Monitor,
+	Settings,
+	Info,
+	X,
+} from "lucide-react";
 import { APP_NAME, APP_VERSION } from "../theme/version";
 import { desktopApi } from "../services/desktop-api";
+import { useSettingsStore } from "../store/settings-store";
 
 const navItems = [
-	{ to: "/", label: "概览" },
-	{ to: "/moonlight", label: "Moonlight" },
-	{ to: "/traversal", label: "Traversal" },
-	{ to: "/setting", label: "配置" },
-	{ to: "/about", label: "关于" },
+	{ to: "/", label: "概览", icon: House },
+	{ to: "/moonlight", label: "Moonlight", icon: Monitor },
+	{ to: "/traversal", label: "Traversal", icon: Monitor },
+	{ to: "/setting", label: "配置", icon: Settings },
+	{ to: "/about", label: "关于", icon: Info },
 ];
 
 function WindowControlButton({
-	label,
+	icon: Icon,
 	title,
 	danger = false,
 	onClick,
 }: {
-	label: string;
+	icon: ComponentType<{ className?: string }>;
 	title: string;
 	danger?: boolean;
 	onClick: () => void;
@@ -34,7 +44,7 @@ function WindowControlButton({
 					: "text-slate-500 hover:bg-[var(--accent-solid)] hover:text-white",
 			].join(" ")}
 		>
-			{label}
+			<Icon className="h-3.5 w-3.5" />
 		</button>
 	);
 }
@@ -42,6 +52,8 @@ function WindowControlButton({
 /** 应用整体布局。 */
 export function AppLayout() {
 	const [isMaximized, setIsMaximized] = useState(false);
+	const { settings } = useSettingsStore();
+	const animationEnabled = settings?.animationEnabled ?? false;
 
 	useEffect(() => {
 		void (async () => {
@@ -59,14 +71,14 @@ export function AppLayout() {
 				</div>
 				<div className="no-drag ml-auto flex items-stretch">
 					<WindowControlButton
-						label="−"
+						icon={Minus}
 						title="最小化"
 						onClick={() => {
 							void desktopApi.minimizeWindow();
 						}}
 					/>
 					<WindowControlButton
-						label={isMaximized ? "❐" : "□"}
+						icon={Expand}
 						title={isMaximized ? "还原" : "最大化"}
 						onClick={() => {
 							void (async () => {
@@ -76,7 +88,7 @@ export function AppLayout() {
 						}}
 					/>
 					<WindowControlButton
-						label="✕"
+						icon={X}
 						title="关闭"
 						danger
 						onClick={() => {
@@ -102,9 +114,10 @@ export function AppLayout() {
 							<NavLink
 								key={item.to}
 								to={item.to}
+								viewTransition={animationEnabled}
 								className={({ isActive }) =>
 									[
-										"rounded-full px-4 py-2 text-sm font-medium transition-all duration-200",
+										"inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all duration-200",
 										isActive
 											? "nav-pill-active shadow-soft-pressed"
 											: "bg-transparent text-slate-500 hover:bg-white/60",
@@ -112,6 +125,7 @@ export function AppLayout() {
 								}
 								end={item.to === "/"}
 							>
+								<item.icon className="h-4 w-4" />
 								{item.label}
 							</NavLink>
 						))}
