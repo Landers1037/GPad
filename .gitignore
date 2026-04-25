@@ -1,5 +1,7 @@
 node_modules
-exe
+*.exe
+exe/moonlight/static/*
+exe/moonlight/server/*
 dist
 out
 release
