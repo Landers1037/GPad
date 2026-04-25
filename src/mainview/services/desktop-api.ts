@@ -2,6 +2,7 @@ import type {
 	AppSettings,
 	ConfigDocument,
 	DashboardSnapshot,
+	FrpConfig,
 	ManagedProcessKey,
 	MoonlightConfig,
 	OperationResult,
@@ -62,6 +63,16 @@ export const desktopApi = {
 	/** 保存 Traversal 配置。 */
 	async saveTraversalConfig(rawText: string): Promise<OperationResult> {
 		return getDesktopApi().saveTraversalConfig(rawText);
+	},
+
+	/** 获取 Frp 配置。 */
+	async getFrpConfig(): Promise<ConfigDocument<FrpConfig>> {
+		return getDesktopApi().getFrpConfig();
+	},
+
+	/** 保存 Frp 配置。 */
+	async saveFrpConfig(rawText: string): Promise<OperationResult> {
+		return getDesktopApi().saveFrpConfig(rawText);
 	},
 
 	/** 获取应用设置。 */

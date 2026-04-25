@@ -2,6 +2,7 @@ import { createHashRouter } from "react-router-dom";
 import { AppLayout } from "./layout/AppLayout";
 import { AboutPage } from "./pages/AboutPage";
 import { DashboardPage } from "./pages/DashboardPage";
+import { FrpPage } from "./pages/FrpPage";
 import { MoonlightPage } from "./pages/MoonlightPage";
 import { SettingPage } from "./pages/SettingPage";
 import { TraversalPage } from "./pages/TraversalPage";
@@ -23,6 +24,10 @@ export const router = createHashRouter([
 			{
 				path: "traversal",
 				element: <TraversalPage />,
+			},
+			{
+				path: "frp",
+				element: <FrpPage />,
 			},
 			{
 				path: "setting",

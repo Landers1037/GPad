@@ -1,5 +1,8 @@
 /** 受管进程键名。 */
-export type ManagedProcessKey = "moonlightWebServer" | "traversalClient";
+export type ManagedProcessKey =
+	| "moonlightWebServer"
+	| "traversalClient"
+	| "frpClient";
 
 /** 程序语言类型。 */
 export type AppLocale = "zh-CN" | "en-US";
@@ -147,6 +150,32 @@ export interface TraversalConfig {
 	auth_key: string;
 	/** 端口映射列表。 */
 	proxy_server: TraversalProxyServerConfig[];
+}
+
+/** Frp 代理项配置。 */
+export interface FrpProxyConfig {
+	/** 穿透名称。 */
+	name: string;
+	/** 代理类型。 */
+	type: string;
+	/** 本机 IP。 */
+	localIP: string;
+	/** 本机端口。 */
+	localPort: number;
+	/** 远程端口。 */
+	remotePort: number;
+}
+
+/** Frp 总配置。 */
+export interface FrpConfig {
+	/** 服务端地址。 */
+	serverAddr: string;
+	/** 服务端端口。 */
+	serverPort: number;
+	/** 认证令牌。 */
+	authToken: string;
+	/** 首个代理配置。 */
+	proxy: FrpProxyConfig;
 }
 
 /** 应用设置。 */

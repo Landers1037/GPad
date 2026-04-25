@@ -2,7 +2,9 @@ import os from "node:os";
 import path from "node:path";
 import { execFile, spawn } from "node:child_process";
 import { promisify } from "node:util";
+import { existsSync, createWriteStream, mkdirSync } from "node:fs";
 import type { ChildProcess } from "node:child_process";
+import type { WriteStream } from "node:fs";
 import type {
 	ManagedProcessKey,
 	ManagedProcessStatus,
@@ -49,17 +51,21 @@ interface CpuSample {
 	timestampMs: number;
 }
 
-/** 管理 Moonlight 与 Traversal 相关进程。 */
+/** 管理 Moonlight、Traversal 与 Frp 相关进程。 */
 export class ProcessManager {
 	private readonly definitions: Record<ManagedProcessKey, ManagedProcessDefinition>;
 	private readonly childProcesses = new Map<ManagedProcessKey, ChildProcess>();
+	private readonly processLogStreams = new Map<ManagedProcessKey, WriteStream>();
 	private readonly cpuSamples = new Map<number, CpuSample>();
 	private readonly cpuCoreCount = Math.max(os.cpus().length, 1);
+	private processLogDirectory: string;
 
 	/** 创建进程管理器。 */
-	constructor(exeRoot: string) {
+	constructor(exeRoot: string, globalLogPath: string) {
 		const moonlightDir = path.join(exeRoot, "moonlight");
 		const traversalDir = path.join(exeRoot, "hamburger_traversalc");
+		const frpDir = path.join(exeRoot, "frp");
+		this.processLogDirectory = path.dirname(globalLogPath);
 		this.definitions = {
 			moonlightWebServer: {
 				key: "moonlightWebServer",
@@ -77,7 +83,20 @@ export class ProcessManager {
 				args: [],
 				allowControl: true,
 			},
+			frpClient: {
+				key: "frpClient",
+				name: "Frp Client",
+				executablePath: path.join(frpDir, "frpc.exe"),
+				workingDirectory: frpDir,
+				args: ["-c", "frpc.toml"],
+				allowControl: true,
+			},
 		};
+	}
+
+	/** 更新全局日志路径。 */
+	updateGlobalLogPath(globalLogPath: string): void {
+		this.processLogDirectory = path.dirname(globalLogPath);
 	}
 
 	/** 获取所有受管进程状态。 */
@@ -99,6 +118,16 @@ export class ProcessManager {
 		if (!definition) {
 			throw new Error("未知的受管进程。");
 		}
+		if (!existsSync(definition.executablePath)) {
+			throw new Error(
+				`程序文件不存在：${definition.executablePath}，请确认已放置对应可执行文件。`,
+			);
+		}
+		if (!existsSync(definition.workingDirectory)) {
+			throw new Error(
+				`程序工作目录不存在：${definition.workingDirectory}。`,
+			);
+		}
 
 		const statuses = await this.getStatuses();
 		const current = statuses.find((item) => item.key === key);
@@ -108,12 +137,31 @@ export class ProcessManager {
 
 		const child = spawn(definition.executablePath, definition.args, {
 			cwd: definition.workingDirectory,
-			stdio: "ignore",
+			stdio: ["ignore", "pipe", "pipe"],
 			windowsHide: true,
 		});
+		const logStream = this.openProcessLogStream(definition);
+		if (child.stdout) {
+			child.stdout.pipe(logStream, { end: false });
+		}
+		if (child.stderr) {
+			child.stderr.pipe(logStream, { end: false });
+		}
+		logStream.write(
+			`${new Date().toISOString()} [INFO] 启动命令：${definition.executablePath} ${definition.args.join(" ")}\n`,
+		);
 		this.childProcesses.set(key, child);
+		this.processLogStreams.set(key, logStream);
+		child.on("error", (error) => {
+			logStream.write(
+				`${new Date().toISOString()} [ERROR] 进程启动失败：${error.message}\n`,
+			);
+		});
 		child.on("exit", () => {
 			this.childProcesses.delete(key);
+			logStream.write(`${new Date().toISOString()} [INFO] 进程已退出。\n`);
+			this.processLogStreams.delete(key);
+			logStream.end();
 		});
 	}
 
@@ -304,6 +352,17 @@ if ($null -eq $process) { "false" } else { "true" }
 	private delay(ms: number): Promise<void> {
 		return new Promise((resolve) => {
 			setTimeout(resolve, ms);
+		});
+	}
+
+	/** 打开进程独立日志文件。 */
+	private openProcessLogStream(definition: ManagedProcessDefinition): WriteStream {
+		mkdirSync(this.processLogDirectory, { recursive: true });
+		const executableName = path.parse(definition.executablePath).name;
+		const logFilePath = path.join(this.processLogDirectory, `${executableName}.log`);
+		return createWriteStream(logFilePath, {
+			flags: "a",
+			encoding: "utf-8",
 		});
 	}
 }

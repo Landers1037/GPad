@@ -19,7 +19,7 @@ let mainWindow: BrowserWindow | null = null;
 const pathService = new PathService(app);
 const defaultLogPath = path.join(pathService.getAppDataRoot(), APP_NAME, "logs", "gpad.log");
 const configService = new ConfigService(pathService.getExeRoot());
-const processManager = new ProcessManager(pathService.getExeRoot());
+const processManager = new ProcessManager(pathService.getExeRoot(), defaultLogPath);
 const settingsService = new SettingsService(pathService.getUserDataRoot(), defaultLogPath);
 const systemInfoService = new SystemInfoService();
 const logger = new LoggerService({
@@ -125,6 +125,25 @@ function registerIpcHandlers() {
 		},
 	);
 
+	ipcMain.removeHandler(IPC_CHANNELS.config.getFrp);
+	ipcMain.handle(IPC_CHANNELS.config.getFrp, async () => {
+		return configService.getFrpConfig();
+	});
+
+	ipcMain.removeHandler(IPC_CHANNELS.config.saveFrp);
+	ipcMain.handle(
+		IPC_CHANNELS.config.saveFrp,
+		async (_event, rawText: string) => {
+			try {
+				await configService.saveFrpConfig(rawText);
+				await logger.info("Frp 配置保存成功。");
+				return buildSuccess("Frp 配置已保存。");
+			} catch (error) {
+				return failWithLog("Frp 配置保存失败。", error);
+			}
+		},
+	);
+
 	ipcMain.removeHandler(IPC_CHANNELS.settings.get);
 	ipcMain.handle(IPC_CHANNELS.settings.get, async () => {
 		return settingsService.getSettings();
@@ -140,6 +159,7 @@ function registerIpcHandlers() {
 					level: settings.logLevel,
 					filePath: settings.logPath,
 				});
+				processManager.updateGlobalLogPath(settings.logPath);
 				await logger.info("应用设置保存成功。", {
 					logLevel: settings.logLevel,
 					logPath: settings.logPath,
@@ -245,6 +265,7 @@ app.whenReady().then(async () => {
 		level: settings.logLevel,
 		filePath: settings.logPath,
 	});
+	processManager.updateGlobalLogPath(settings.logPath);
 	await logger.info("应用启动。", {
 		appName: APP_NAME,
 		logLevel: settings.logLevel,

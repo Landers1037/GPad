@@ -25,7 +25,7 @@ export function DashboardPage() {
 				<div>
 					<SectionTitle
 						title="程序运行概览"
-						subtitle="统一查看 Moonlight Web Server 与 Traversal 客户端运行状态。"
+						subtitle="统一查看 Moonlight、Traversal 与 Frp 客户端运行状态。"
 					/>
 				</div>
 				<button

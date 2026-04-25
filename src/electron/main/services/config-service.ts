@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type {
 	ConfigDocument,
+	FrpConfig,
 	MoonlightConfig,
 	TraversalConfig,
 } from "../../../shared/types";
@@ -36,10 +37,24 @@ const DEFAULT_TRAVERSAL_CONFIG: TraversalConfig = {
 	proxy_server: [],
 };
 
+const DEFAULT_FRP_CONFIG: FrpConfig = {
+	serverAddr: "127.0.0.1",
+	serverPort: 7000,
+	authToken: "",
+	proxy: {
+		name: "test-tcp",
+		type: "tcp",
+		localIP: "127.0.0.1",
+		localPort: 8080,
+		remotePort: 6666,
+	},
+};
+
 /** 解析并管理业务配置文件。 */
 export class ConfigService {
 	private readonly moonlightConfigPath: string;
 	private readonly traversalConfigPath: string;
+	private readonly frpConfigPath: string;
 
 	/** 创建配置服务。 */
 	constructor(exeRoot: string) {
@@ -49,6 +64,7 @@ export class ConfigService {
 			"hamburger_traversalc",
 			"traversalc.json",
 		);
+		this.frpConfigPath = path.join(exeRoot, "frp", "frpc.toml");
 	}
 
 	/** 获取 Moonlight 配置文档。 */
@@ -69,6 +85,31 @@ export class ConfigService {
 	/** 保存 Traversal 配置文档。 */
 	async saveTraversalConfig(rawText: string): Promise<void> {
 		await this.writeValidatedJson(this.traversalConfigPath, rawText);
+	}
+
+	/** 获取 Frp 配置文档。 */
+	async getFrpConfig(): Promise<ConfigDocument<FrpConfig>> {
+		const rawText = await this.readTomlConfigFile(this.frpConfigPath, this.buildFrpToml(DEFAULT_FRP_CONFIG));
+		return {
+			filePath: this.frpConfigPath,
+			rawText,
+			config: this.parseFrpToml(rawText),
+		};
+	}
+
+	/** 保存 Frp 配置文档。 */
+	async saveFrpConfig(rawText: string): Promise<void> {
+		try {
+			const parsed = this.parseFrpToml(rawText);
+			const normalized = this.buildFrpToml(parsed);
+			await mkdir(path.dirname(this.frpConfigPath), { recursive: true });
+			await writeFile(this.frpConfigPath, `${normalized}\n`, "utf-8");
+		} catch (error) {
+			if (error instanceof Error) {
+				throw new Error(`保存配置失败：${error.message}`);
+			}
+			throw error;
+		}
 	}
 
 	/** 读取并解析 JSON 配置文件。 */
@@ -120,5 +161,82 @@ export class ConfigService {
 
 			throw error;
 		}
+	}
+
+	/** 读取 TOML 配置文件。 */
+	private async readTomlConfigFile(filePath: string, fallbackRawText: string): Promise<string> {
+		try {
+			return await readFile(filePath, "utf-8");
+		} catch (error) {
+			if (!(error instanceof Error)) {
+				throw error;
+			}
+			if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+				throw new Error(`读取配置失败：${error.message}`);
+			}
+			return fallbackRawText;
+		}
+	}
+
+	/** 解析 Frp TOML。 */
+	private parseFrpToml(rawText: string): FrpConfig {
+		const valueOf = (key: string): string | null => {
+			const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+			const match = rawText.match(
+				new RegExp(`^\\s*${escapedKey}\\s*=\\s*(.+)\\s*$`, "m"),
+			);
+			return match ? match[1].trim() : null;
+		};
+		const stringOf = (key: string): string => {
+			const value = valueOf(key);
+			if (!value) {
+				throw new Error(`缺少字段：${key}`);
+			}
+			const quoted = value.match(/^"(.*)"$/);
+			if (!quoted) {
+				throw new Error(`字段格式无效（需要字符串）：${key}`);
+			}
+			return quoted[1];
+		};
+		const numberOf = (key: string): number => {
+			const value = valueOf(key);
+			if (!value) {
+				throw new Error(`缺少字段：${key}`);
+			}
+			const parsed = Number(value);
+			if (!Number.isFinite(parsed)) {
+				throw new Error(`字段格式无效（需要数字）：${key}`);
+			}
+			return parsed;
+		};
+
+		return {
+			serverAddr: stringOf("serverAddr"),
+			serverPort: numberOf("serverPort"),
+			authToken: stringOf("auth.token"),
+			proxy: {
+				name: stringOf("name"),
+				type: stringOf("type"),
+				localIP: stringOf("localIP"),
+				localPort: numberOf("localPort"),
+				remotePort: numberOf("remotePort"),
+			},
+		};
+	}
+
+	/** 生成 Frp TOML。 */
+	private buildFrpToml(config: FrpConfig): string {
+		return [
+			`serverAddr = "${config.serverAddr}"`,
+			`serverPort = ${config.serverPort}`,
+			`auth.token = "${config.authToken}"`,
+			"",
+			"[[proxies]]",
+			`name = "${config.proxy.name}"`,
+			`type = "${config.proxy.type}"`,
+			`localIP = "${config.proxy.localIP}"`,
+			`localPort = ${config.proxy.localPort}`,
+			`remotePort = ${config.proxy.remotePort}`,
+		].join("\n");
 	}
 }

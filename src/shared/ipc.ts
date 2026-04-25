@@ -2,6 +2,7 @@ import type {
 	AppSettings,
 	ConfigDocument,
 	DashboardSnapshot,
+	FrpConfig,
 	ManagedProcessKey,
 	MoonlightConfig,
 	OperationResult,
@@ -24,6 +25,8 @@ export const IPC_CHANNELS = {
 		saveMoonlight: "config:saveMoonlight",
 		getTraversal: "config:getTraversal",
 		saveTraversal: "config:saveTraversal",
+		getFrp: "config:getFrp",
+		saveFrp: "config:saveFrp",
 	},
 	settings: {
 		get: "settings:get",
@@ -56,6 +59,10 @@ export interface DesktopApi {
 	getTraversalConfig: () => Promise<ConfigDocument<TraversalConfig>>;
 	/** 保存 Traversal 配置。 */
 	saveTraversalConfig: (rawText: string) => Promise<OperationResult>;
+	/** 获取 Frp 配置。 */
+	getFrpConfig: () => Promise<ConfigDocument<FrpConfig>>;
+	/** 保存 Frp 配置。 */
+	saveFrpConfig: (rawText: string) => Promise<OperationResult>;
 	/** 获取应用设置。 */
 	getAppSettings: () => Promise<AppSettings>;
 	/** 保存应用设置。 */

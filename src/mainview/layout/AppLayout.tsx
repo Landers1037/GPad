@@ -5,6 +5,8 @@ import {
 	Minus,
 	Expand,
 	Monitor,
+	Network,
+	CircleSlash2,
 	Settings,
 	Info,
 	X,
@@ -17,7 +19,8 @@ import { useSettingsStore } from "../store/settings-store";
 const navItems = [
 	{ to: "/", label: "概览", icon: House },
 	{ to: "/moonlight", label: "Moonlight", icon: Monitor },
-	{ to: "/traversal", label: "Traversal", icon: Monitor },
+	{ to: "/traversal", label: "Traversal", icon: CircleSlash2 },
+	{ to: "/frp", label: "Frp", icon: Network },
 	{ to: "/setting", label: "配置", icon: Settings },
 	{ to: "/about", label: "关于", icon: Info },
 ];

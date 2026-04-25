@@ -30,6 +30,12 @@ const gpadApi: DesktopApi = {
 	async saveTraversalConfig(rawText) {
 		return ipcRenderer.invoke(IPC_CHANNELS.config.saveTraversal, rawText);
 	},
+	async getFrpConfig() {
+		return ipcRenderer.invoke(IPC_CHANNELS.config.getFrp);
+	},
+	async saveFrpConfig(rawText) {
+		return ipcRenderer.invoke(IPC_CHANNELS.config.saveFrp, rawText);
+	},
 	async getAppSettings() {
 		return ipcRenderer.invoke(IPC_CHANNELS.settings.get);
 	},
