@@ -24,6 +24,15 @@ export function SettingPage() {
 		[],
 	);
 
+	const themePresetMap: Record<ThemeAccent, string> = useMemo(
+		() => ({
+			sky: "#0f91cf",
+			violet: "#7c63e6",
+			emerald: "#1f9d7a",
+		}),
+		[],
+	);
+
 	const localeOptions = useMemo<{ value: AppLocale; label: string }[]>(
 		() => [
 			{ value: "zh-CN", label: "中文" },
@@ -60,11 +69,13 @@ export function SettingPage() {
 					<SelectBox
 						value={draft.themeAccent}
 						onChange={(event) => {
+							const nextAccent = event.target.value as ThemeAccent;
 							setDraft((current) =>
 								current
 									? {
 											...current,
-											themeAccent: event.target.value as ThemeAccent,
+											themeAccent: nextAccent,
+											themeCustomColor: themePresetMap[nextAccent],
 										}
 									: current,
 							);
@@ -76,6 +87,67 @@ export function SettingPage() {
 							</option>
 						))}
 					</SelectBox>
+				</label>
+
+				<label className="flex flex-col gap-2">
+					<span className="text-sm font-medium text-slate-600">调色盘</span>
+					<div className="flex items-center gap-3">
+						<input
+							type="color"
+							value={draft.themeCustomColor}
+							onChange={(event) => {
+								setDraft((current) =>
+									current
+										? {
+												...current,
+												themeCustomColor: event.target.value,
+											}
+										: current,
+								);
+							}}
+							className="soft-color-picker h-11 w-16 rounded-2xl border border-white/60 bg-white/70 p-1 shadow-soft-pressed"
+						/>
+						<TextInput
+							className="flex-1"
+							value={draft.themeCustomColor}
+							onChange={(event) => {
+								setDraft((current) =>
+									current
+										? {
+												...current,
+												themeCustomColor: event.target.value,
+											}
+										: current,
+								);
+							}}
+						/>
+					</div>
+				</label>
+
+				<label className="flex flex-col gap-2">
+					<span className="text-sm font-medium text-slate-600">主题透明度</span>
+					<div className="flex items-center gap-3">
+						<input
+							type="range"
+							min={0}
+							max={100}
+							value={draft.themeCustomOpacity}
+							onChange={(event) => {
+								setDraft((current) =>
+									current
+										? {
+												...current,
+												themeCustomOpacity: Number(event.target.value),
+											}
+										: current,
+								);
+							}}
+							className="accent-range h-2 flex-1 cursor-pointer appearance-none rounded-full bg-white/70 shadow-soft-pressed"
+						/>
+						<span className="min-w-14 text-right text-sm text-slate-500">
+							{draft.themeCustomOpacity}%
+						</span>
+					</div>
 				</label>
 
 				<label className="flex flex-col gap-2">

@@ -90,6 +90,11 @@ export const desktopApi = {
 		return getDesktopApi().openLogFolder(logPath);
 	},
 
+	/** 打开外部网页。 */
+	async openExternalUrl(url: string): Promise<OperationResult> {
+		return getDesktopApi().openExternalUrl(url);
+	},
+
 	/** 启动受管进程。 */
 	async startManagedProcess(key: ManagedProcessKey): Promise<OperationResult> {
 		return getDesktopApi().startManagedProcess(key);

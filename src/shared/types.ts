@@ -88,6 +88,8 @@ export interface MoonlightDataStorageConfig {
 export interface MoonlightWebServerConfig {
 	/** 绑定地址。 */
 	bind_address: string;
+	/** 证书路径，为空表示未启用 HTTPS。 */
+	certificate: string | null;
 	/** 路径前缀。 */
 	url_path_prefix: string;
 	/** 是否允许首次登录创建管理员。 */
@@ -184,6 +186,10 @@ export interface AppSettings {
 	locale: AppLocale;
 	/** 当前主题配色。 */
 	themeAccent: ThemeAccent;
+	/** 自定义主题色（HEX）。 */
+	themeCustomColor: string;
+	/** 自定义主题透明度（0-100）。 */
+	themeCustomOpacity: number;
 	/** 是否开启界面动画效果。 */
 	animationEnabled: boolean;
 	/** 日志文件路径（默认 `%APPDATA%/GPad/logs/gpad.log`）。 */

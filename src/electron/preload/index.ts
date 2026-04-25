@@ -45,6 +45,9 @@ const gpadApi: DesktopApi = {
 	async openLogFolder(logPath) {
 		return ipcRenderer.invoke(IPC_CHANNELS.settings.openLogFolder, logPath);
 	},
+	async openExternalUrl(url) {
+		return ipcRenderer.invoke(IPC_CHANNELS.settings.openExternalUrl, url);
+	},
 	async startManagedProcess(key) {
 		return ipcRenderer.invoke(IPC_CHANNELS.process.start, key);
 	},

@@ -14,6 +14,7 @@ const DEFAULT_MOONLIGHT_CONFIG: MoonlightConfig = {
 	},
 	web_server: {
 		bind_address: "0.0.0.0:8080",
+		certificate: null,
 		url_path_prefix: "",
 		first_login_create_admin: true,
 		first_login_assign_global_hosts: true,

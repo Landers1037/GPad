@@ -200,6 +200,27 @@ function registerIpcHandlers() {
 		},
 	);
 
+	ipcMain.removeHandler(IPC_CHANNELS.settings.openExternalUrl);
+	ipcMain.handle(
+		IPC_CHANNELS.settings.openExternalUrl,
+		async (_event, url: string) => {
+			try {
+				const text = typeof url === "string" ? url.trim() : "";
+				if (!/^https?:\/\//i.test(text)) {
+					return {
+						success: false,
+						message: "仅支持打开 http/https 页面。",
+					};
+				}
+				await shell.openExternal(text);
+				await logger.info("外部页面已打开。", { url: text });
+				return buildSuccess("页面已打开。");
+			} catch (error) {
+				return failWithLog("打开外部页面失败。", error);
+			}
+		},
+	);
+
 	ipcMain.removeHandler(IPC_CHANNELS.process.start);
 	ipcMain.handle(
 		IPC_CHANNELS.process.start,

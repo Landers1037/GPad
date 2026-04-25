@@ -13,6 +13,8 @@ export class SettingsService {
 		this.defaultSettings = {
 			locale: "zh-CN",
 			themeAccent: "sky",
+			themeCustomColor: "#0f91cf",
+			themeCustomOpacity: 14,
 			animationEnabled: false,
 			logPath: defaultLogPath,
 			logLevel: "INFO",
@@ -28,10 +30,22 @@ export class SettingsService {
 				typeof parsed.logPath === "string" && path.isAbsolute(parsed.logPath)
 					? parsed.logPath
 					: this.defaultSettings.logPath;
+			const safeThemeCustomColor =
+				typeof parsed.themeCustomColor === "string" &&
+				/^#[0-9a-fA-F]{6}$/.test(parsed.themeCustomColor)
+					? parsed.themeCustomColor
+					: this.defaultSettings.themeCustomColor;
+			const safeThemeCustomOpacity =
+				typeof parsed.themeCustomOpacity === "number" &&
+				Number.isFinite(parsed.themeCustomOpacity)
+					? Math.min(100, Math.max(0, Math.round(parsed.themeCustomOpacity)))
+					: this.defaultSettings.themeCustomOpacity;
 			return {
 				...this.defaultSettings,
 				...parsed,
 				logPath: safeLogPath,
+				themeCustomColor: safeThemeCustomColor,
+				themeCustomOpacity: safeThemeCustomOpacity,
 			};
 		} catch (error) {
 			if (

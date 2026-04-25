@@ -1,4 +1,5 @@
 import { Play, Square } from "lucide-react";
+import type { ReactNode } from "react";
 import type { ManagedProcessStatus } from "../../shared/types";
 import { MetricItem, SoftButton, SoftPanel, StatusBadge } from "./ui";
 
@@ -7,6 +8,7 @@ export function ProcessCard({
 	process,
 	onStart,
 	onStop,
+	extraAction,
 }: {
 	/** 进程状态。 */
 	process: ManagedProcessStatus;
@@ -14,6 +16,19 @@ export function ProcessCard({
 	onStart: () => void;
 	/** 停止事件。 */
 	onStop: () => void;
+	/** 额外操作按钮。 */
+	extraAction?: {
+		/** 按钮文字。 */
+		label: string;
+		/** 点击事件。 */
+		onClick: () => void;
+		/** 图标节点。 */
+		icon?: ReactNode;
+		/** 是否禁用。 */
+		disabled?: boolean;
+		/** 额外样式类。 */
+		className?: string;
+	};
 }) {
 	return (
 		<SoftPanel className="flex h-full flex-col gap-5">
@@ -52,6 +67,16 @@ export function ProcessCard({
 					<Square className="h-4 w-4" />
 					停止程序
 				</SoftButton>
+				{extraAction ? (
+					<SoftButton
+						className={extraAction.className ?? "bg-slate-600/85 text-white"}
+						disabled={extraAction.disabled}
+						onClick={extraAction.onClick}
+					>
+						{extraAction.icon}
+						{extraAction.label}
+					</SoftButton>
+				) : null}
 			</div>
 		</SoftPanel>
 	);

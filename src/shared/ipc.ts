@@ -32,6 +32,7 @@ export const IPC_CHANNELS = {
 		get: "settings:get",
 		save: "settings:save",
 		openLogFolder: "settings:openLogFolder",
+		openExternalUrl: "settings:openExternalUrl",
 	},
 	process: {
 		start: "process:start",
@@ -69,6 +70,8 @@ export interface DesktopApi {
 	saveAppSettings: (settings: AppSettings) => Promise<OperationResult>;
 	/** 打开日志所在文件夹。 */
 	openLogFolder: (logPath: string) => Promise<OperationResult>;
+	/** 打开外部网页。 */
+	openExternalUrl: (url: string) => Promise<OperationResult>;
 	/** 启动受管进程。 */
 	startManagedProcess: (key: ManagedProcessKey) => Promise<OperationResult>;
 	/** 停止受管进程。 */
